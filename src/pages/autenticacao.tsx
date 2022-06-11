@@ -3,10 +3,12 @@ import { useState } from "react";
 import AuthInput from "../components/auth/AuthInput";
 import { IconeAtencao } from "../components/icons";
 import useAuth from "../data/hook/useAuth";
+import Cookies from 'js-cookie'
+import route from "next/router";
 
 export default function autenticacao() {
 
-    const {usuario, loginGoogle} = useAuth();
+    const { cadastrar, login, loginGoogle } = useAuth();
 
     const [modo, setModo] = useState<'login' | 'cadastro'>('login')
     const [email, setEmail] = useState('')
@@ -18,15 +20,22 @@ export default function autenticacao() {
         setTimeout(() => setErro(null), tempo * 1000)
     }
 
+    async  function submeter() {
 
-    function submeter() {
-        if (modo === 'login') {
-            console.log('login')
-            exibirErro('deu PT no login')
-        } else {
-            console.log('cadasto')
-            exibirErro('deu PT no cadastro')
+        try {
+            if (modo === 'login') {
+                await login(email, senha)
+            } else {
+                await cadastrar(email, senha)
+            }
+        } catch (e) {
+            exibirErro(e?.message ?? 'DEU PT')
         }
+
+    }
+
+    if (Cookies.get('admin-template-FF-auth')) {
+        route.push('/')
     }
 
     return (
